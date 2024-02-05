@@ -4,7 +4,7 @@
   "description": "1. Download the zip, and extract it.\r 2. Execute : npm start\r 3. curl http://localhost:3000/healthz",
   "main": "index.js",
   "scripts": {
-    "start": "node ./app/app.js",
+    "start": "node ./server.js",
     "test": "mocha ./app/test/health-test.js"
   },
   "keywords": [],
