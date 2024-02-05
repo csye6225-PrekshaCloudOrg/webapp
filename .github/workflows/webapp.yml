@@ -20,4 +20,4 @@ jobs:
         run: npm install
 
       - name: Compile Code
-        run: npm run build
+        run: npm start
