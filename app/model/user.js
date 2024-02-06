@@ -10,22 +10,31 @@ module.exports=(sequelize, DataTypes) => {
             primaryKey: true
         },
         first_name:{
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            validate: {
+                isAlpha: true,
+            }
         },
         last_name:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            validate: {
+                isAlpha: true,
+            }
         },
         username:{
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            validate: {
+            isEmail: true
+            }
         },
         password:{
             type:DataTypes.STRING
         },
         account_created:{
-            type:DataTypes.STRING
+            type:DataTypes.DATE
         },
         account_updated:{
-            type:DataTypes.STRING
+            type:DataTypes.DATE
         }
     },
     {

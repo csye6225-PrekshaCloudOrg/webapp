@@ -19,51 +19,106 @@ function decryptString(authheader) {
 
 
 exports.create = async (req, res)=>{
-    if(!req.body.first_name || !req.body.last_name || !req.body.username || !req.body.password){
-        res.status(400).send();
-    }else{
+    try{
+
+        if(!req.body.first_name || !req.body.last_name || !req.body.username || !req.body.password){
+            res.status(400).send();
+        }else{
+        
+        const emailExists = await User.findOne({ where: { username: req.body.username } });
+        if (emailExists ) {
+            res.status(400).send("Email already registered")
+        }
+        else{
+            const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+            const date = new Date();
+            console.log("############",hashedPassword)
+            const user = {
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                username: req.body.username,
+                password:hashedPassword,
+                account_created: date.toString(),
+                account_updated: date.toString()
+            }
     
-    const emailExists = await User.findOne({ where: { username: req.body.username } });
-    if (emailExists ) {
-        res.status(400).send("Email already registered")
-    }
-    else{
-        const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-        const date = new Date();
-        console.log("############",hashedPassword)
-        const user = {
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            username: req.body.username,
-            password:hashedPassword,
-            account_created: date.toString(),
-            account_updated: date.toString()
+            User.create(user)
+            .then(data =>{
+                const { password, ...userDataWithoutPassword } = data.dataValues;
+                res.status(201)
+                .send(userDataWithoutPassword);
+            })
+            .catch(err =>{
+                res.status(400)
+                .send({ message:
+                    err.message || "Some error occurred while creating the User."})
+            });
+            }
         }
 
-        User.create(user)
-        .then(data =>{
-            res.send(data);
-        })
-        .catch(err =>{
-            res.status(500)
-            .send({ message:
-                err.message || "Some error occurred while creating the User."})
-        });
-        }
+    }catch (error){
+        console.error('Health check error:', error);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.status(503).send();
     }
 };
 
 
 exports.findOne = (req, res) => {
-    const authHeader = req.headers.authorization;
-    console.log(authHeader); // Make sure you are getting the expected value in the authHeader
+    try{
 
-    if (authHeader && authHeader.startsWith('Basic ')) {
+        const authHeader = req.headers.authorization;
+        console.log(authHeader); // Make sure you are getting the expected value in the authHeader
+
+        if (authHeader && authHeader.startsWith('Basic ')) {
+            const [decryptedUsername, decryptedPassword] = decryptString(authHeader);
+            
+            if (decryptedUsername === null || decryptedPassword === null) {
+                res.status(401).send('Unauthorized');
+            } else {
+                User.findOne({
+                    where: {
+                        username: decryptedUsername
+                    }
+                })
+                .then(user => {
+                    if (!user) {
+                        res.status(401).send();
+                    } else {
+                        const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
+                        if (!isPasswordValid) {
+                            res.status(401).send();
+                        } else {
+                            const { password, ...userDataWithoutPassword } = user.dataValues;
+                            console.log(userDataWithoutPassword);
+                            res.status(200).send(userDataWithoutPassword);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    res.status(503).send(); // Internal server error
+                });
+            }
+        } else {
+            res.status(401).send('Unauthorized');
+        }
+    }catch (error){
+        console.error('Health check error:', error);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.status(503).send();
+    }
+}
+
+exports.updateUser = (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
         const [decryptedUsername, decryptedPassword] = decryptString(authHeader);
-        
+
         if (decryptedUsername === null || decryptedPassword === null) {
             res.status(401).send('Unauthorized');
         } else {
+            const { first_name, last_name, password } = req.body;
             User.findOne({
                 where: {
                     username: decryptedUsername
@@ -71,78 +126,46 @@ exports.findOne = (req, res) => {
             })
             .then(user => {
                 if (!user) {
-                    res.status(404).send();
+                    res.status(401).send('User not found');
                 } else {
                     const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
                     if (!isPasswordValid) {
-                        res.status(404).send();
+                        res.status(401).send('Invalid password');
                     } else {
-                        const { password, ...userDataWithoutPassword } = user.dataValues;
-                        console.log(userDataWithoutPassword);
-                        res.status(200).send(userDataWithoutPassword);
+                        // Update the user's information
+                        const updatedFields = {};
+                        if (first_name) updatedFields.first_name = first_name;
+                        if (last_name) updatedFields.last_name = last_name;
+                        if (password) {
+                            const hashedPassword = bcrypt.hashSync(password, 10);
+                            updatedFields.password = hashedPassword;
+                        }
+                        const date = new Date();
+                        updatedFields.account_updated = date.toString();
+                        User.update(updatedFields, {
+                            where: {
+                                username: decryptedUsername
+                            }
+                        })
+                        .then(() => {
+                            res.status(204).send();
+                        })
+                        .catch(error => {
+                            console.error('Error updating user:', error);
+                            res.status(503).send('Internal server error');
+                        });
                     }
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                res.status(500).send(); // Internal server error
+                console.error('Error finding user:', error);
+                res.status(503).send('Internal server error');
             });
         }
-    } else {
-        res.status(401).send('Unauthorized');
-    }
-}
-
-exports.updateUser = (req, res) => {
-    const authHeader = req.headers.authorization;
-    const [decryptedUsername, decryptedPassword] = decryptString(authHeader);
-
-    if (decryptedUsername === null || decryptedPassword === null) {
-        res.status(401).send('Unauthorized');
-    } else {
-        const { first_name, last_name, password } = req.body;
-        User.findOne({
-            where: {
-                username: decryptedUsername
-            }
-        })
-        .then(user => {
-            if (!user) {
-                res.status(404).send('User not found');
-            } else {
-                const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
-                if (!isPasswordValid) {
-                    res.status(401).send('Invalid password');
-                } else {
-                    // Update the user's information
-                    const updatedFields = {};
-                    if (first_name) updatedFields.first_name = first_name;
-                    if (last_name) updatedFields.last_name = last_name;
-                    if (password) {
-                        const hashedPassword = bcrypt.hashSync(password, 10);
-                        updatedFields.password = hashedPassword;
-                    }
-                    const date = new Date();
-                    updatedFields.account_updated = date.toString();
-                    User.update(updatedFields, {
-                        where: {
-                            username: decryptedUsername
-                        }
-                    })
-                    .then(() => {
-                        res.status(200).send('User updated successfully');
-                    })
-                    .catch(error => {
-                        console.error('Error updating user:', error);
-                        res.status(500).send('Internal server error');
-                    });
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error finding user:', error);
-            res.status(500).send('Internal server error');
-        });
+    }catch (error){
+        console.error('Health check error:', error);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.status(503).send();
     }
 };
 

@@ -36,6 +36,10 @@ const checkPayload_User = (req, res, next) => {
     next();
 };
 
+router.get('/test', (req,res) =>{
+    res.status(200).send();
+});
+
 router.head('/healthz', (req, res) => {
     res.status(405).send();
 });
@@ -45,9 +49,13 @@ router.all('/healthz', (req, res) => {
 });
 
 router.post('/v1/user', create_user_validator, userController.create)
-      .get('/v1/user/self',checkPayload ,userController.findOne)
+      .all('/v1/user', (req, res) => {
+        res.status(405).send();
+    });
+
+router.get('/v1/user/self',checkPayload ,userController.findOne)
       .put('/v1/user/self',update_user_validator,  userController.updateUser)
-      .delete('/v1/user/self',(req,res) =>{
+      .all('/v1/user/self',(req,res) =>{
             res.status(405).send();
 });
 

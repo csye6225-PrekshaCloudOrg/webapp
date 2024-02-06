@@ -18,6 +18,3 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-
-      - name: Compile Code
-        run: npm start
