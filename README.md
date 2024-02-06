@@ -1,4 +1,4 @@
-# webapp
+# Webapp
 ### Prerequisites :
 1. Install postgress
 2. Node js v18
