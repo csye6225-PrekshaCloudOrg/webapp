@@ -1,0 +1,31 @@
+{
+  "name": "assignment01",
+  "version": "1.0.0",
+  "description": "1. Download the zip, and extract it.\r 2. Execute : npm start\r 3. curl http://localhost:3000/healthz",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./server.js",
+    "test": "mocha ./app/test/health-test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "avj": "^0.0.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "sequelize": "^6.35.2",
+    "sequelize-mock": "^0.10.2",
+    "supertest": "^6.3.4",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "chai": "^5.0.3",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0"
+  }
+}
