@@ -2,7 +2,7 @@ name: Compile Code
 on:
   pull_request:
     branches:
-      - assignment2
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
