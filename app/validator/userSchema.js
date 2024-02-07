@@ -16,7 +16,8 @@ const create_user_validator = (req,res,next) => {
     }
   const valid = createUserJson(req.body);
     if (!valid) {
-        return res.status(400).json({ errors: createUserJson.errors });
+        //return res.status(400).json({ errors: createUserJson.errors });
+        return res.status(400).send('Json Validation incorrect');
     }
     next();
 }
@@ -31,7 +32,8 @@ const update_user_validator = (req,res,next) => {
     }
   const valid = updateUserJson(req.body);
     if (!valid) {
-        return res.status(400).json({ errors: updateUserJson.errors });
+        //return res.status(400).json({ errors: updateUserJson.errors });
+        return res.status(400).send('Json Validation incorrect')
     }
     next();
 }
