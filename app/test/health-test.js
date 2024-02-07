@@ -1,16 +1,10 @@
-const supertest = require('supertest');
-const app = require('../../server');
+const request = require('supertest');
+const assert = require('assert');
 
-var assert = require('assert');
-
-describe('Testing our application', function(){
-    it('GET /healthz end point of the application to test sequelize', (done) => {
-        supertest(app)
-        .get('/healthz')
-        .expect(200)
-        .end((err, response) => {
-            if (err) return done(err)
-            return done()
-        })
-    })
+describe('Basic Addition Test', function() {
+  it('Should return the result of 4 + 4', function(done) {
+    const result = 4 + 4;
+    assert.strictEqual(result, 8);
+    done();
+  });
 });

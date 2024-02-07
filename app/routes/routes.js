@@ -53,7 +53,9 @@ router.post('/v1/user', create_user_validator, userController.create)
         res.status(405).send();
     });
 
-router.get('/v1/user/self',checkPayload ,userController.findOne)
+router.head('/v1/user/self',(req,res) =>{
+        res.status(405).send();})
+      .get('/v1/user/self',checkPayload ,userController.findOne)
       .put('/v1/user/self',update_user_validator,  userController.updateUser)
       .all('/v1/user/self',(req,res) =>{
             res.status(405).send();

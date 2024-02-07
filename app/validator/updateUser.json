@@ -2,13 +2,16 @@
     "type": "object",
     "properties": {
         "first_name": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-zA-Z]*$"
         },
         "last_name": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-zA-Z]*$"
         },
         "password": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
         }
     },
     "required": ["first_name", "last_name", "password"],

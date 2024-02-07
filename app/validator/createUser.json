@@ -11,6 +11,13 @@
             "type": "string"
         },
         "password": {
+            "type": "string",
+            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
+        },
+        "account_created": {
+            "type": "string"
+        },
+        "account_updated": {
             "type": "string"
         }
     },
