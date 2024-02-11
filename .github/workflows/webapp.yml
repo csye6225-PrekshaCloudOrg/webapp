@@ -2,7 +2,8 @@ name: Compile Code
 on:
   pull_request:
     branches:
-      - main
+      - assignment03
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,9 +11,9 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: Password@12345
-          POSTGRES_DB: test01
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
           - 5432:5432
     steps:
@@ -29,9 +30,9 @@ jobs:
 
       - name: Run Tests
         env:
-          DB_USERNAME: postgres
-          DB_PASSWORD: Password@12345
+          DB_USERNAME: ${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DB_DATABASE: ${{ secrets.POSTGRES_DB }}
           PORT: 5432
           WEB_SITE_PORT: 3000
-          DB_DATABASE: test01
         run: npm test
