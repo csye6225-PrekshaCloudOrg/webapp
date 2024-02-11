@@ -35,3 +35,6 @@ jobs:
           WEB_SITE_PORT: 3000
           DB_DATABASE: test01
         run: npm test
+
+      - name: Intentionally Fail Workflow
+        run: exit 1
