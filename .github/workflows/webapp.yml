@@ -2,11 +2,19 @@ name: Compile Code
 on:
   pull_request:
     branches:
-      - main
+      - assignment03
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: Password@12345
+          POSTGRES_DB: test01
+        ports:
+          - 5432:5432
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -20,4 +28,10 @@ jobs:
         run: npm install
 
       - name: Run Tests
+        env:
+          DB_USERNAME: postgres
+          DB_PASSWORD: Password@12345
+          PORT: 5432
+          WEB_SITE_PORT: 3000
+          DB_DATABASE: test01
         run: npm test
