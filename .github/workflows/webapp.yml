@@ -2,7 +2,7 @@ name: Compile Code
 on:
   pull_request:
     branches:
-      - assignment03
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,6 +35,3 @@ jobs:
           WEB_SITE_PORT: 3000
           DB_DATABASE: test01
         run: npm test
-
-      - name: Intentionally Fail Workflow
-        run: exit 1
