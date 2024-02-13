@@ -30,8 +30,11 @@ jobs:
         run: |
           sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}';"
 
+
       - name: Update PostgreSQL Authentication Method
         run: |
+          sudo find / -name pg_hba.conf
+          echo "TESTINGGGGGGG"
           sudo sed -i 's/^\(host.*all.*all.*\)\(ident\)\(.*\)$/\1md5\3/g' /var/lib/pgsql/data/pg_hba.conf
 
       - name: Restart PostgreSQL
