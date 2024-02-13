@@ -29,10 +29,10 @@ jobs:
       - name: Change PostgreSQL Password
         run: |
           sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}';"
-
+      
       - name: Login to PostgreSQL
         run: |
-          export PGPASSWORD='new_password'
+          export PGPASSWORD='${{ secrets.POSTGRES_PASSWORD }}'
           psql -U postgres -h localhost -d postgres -c "SELECT version();"
 
       - name: Run Tests
