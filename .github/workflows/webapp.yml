@@ -7,15 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        ports:
-          - 5432:5432
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,6 +18,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+
+      - name: Set up PostgreSQL
+        uses: ikalnytskyi/action-setup-postgres@v5
+        with:
+          postgresql-version: '13'
 
       - name: Run Tests
         env:
