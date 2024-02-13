@@ -18,6 +18,15 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+      
+      - name: Set up PostgreSQL
+        uses: ikalnytskyi/action-setup-postgres@v5
+        with:
+          postgresql-version: '13'
+
+      - name: Confirm PostgreSQL connection
+        run: |
+          psql -U postgres -h localhost -d postgres -c "SELECT version();"
 
       - name: Run Tests
         run: npm test
