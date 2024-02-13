@@ -19,10 +19,21 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Set up PostgreSQL
-        uses: ikalnytskyi/action-setup-postgres@v5
-        with:
-          postgresql-version: '13'
+      - name: Start PostgreSQL Service
+        if: ${{ !contains(steps.status.outputs.service_status, 'running') }}
+        run: sudo service postgresql start
+
+      - name: Adjust Permissions on PostgreSQL Socket File
+        run: sudo chmod 777 /var/run/postgresql/.s.PGSQL.5432 || true
+
+      - name: Change PostgreSQL Password
+        run: |
+          sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}';"
+
+      - name: Login to PostgreSQL
+        run: |
+          export PGPASSWORD='new_password'
+          psql -U postgres -h localhost -d postgres -c "SELECT version();"
 
       - name: Run Tests
         env:
