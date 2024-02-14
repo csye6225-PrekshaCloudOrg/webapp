@@ -1,4 +1,5 @@
 const request = require('supertest');
+const assert = require('assert');
 const { app, server } = require('../../server'); 
 
 describe('GET /healthz', () => {
@@ -44,6 +45,8 @@ describe('GET /v1/user/self', () => {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
+        assert.strictEqual(res.body.first_name, 'Jane');
+        assert.strictEqual(res.body.last_name, 'Doe');
         done();
       });
   });
@@ -53,9 +56,9 @@ describe('PUT /v1/user/self', () => {
   it('should update user information with basic authentication', (done) => {
     const authHeader = 'Basic dXNlcjEyMzQ1QGdtYWlsLmNvbTpQYXNzd29yZDEyMw==';
     const userData = {
-      "first_name": "Jane",
-      "last_name": "Doe",
-      "password": "Password123"
+      "first_name": "Preksha",
+      "last_name": "Yadav",
+      "password": "Password123456"
     };
 
     request(app)
@@ -71,7 +74,22 @@ describe('PUT /v1/user/self', () => {
   });
 });
 
+describe('GET /v1/user/self', () => {
+  it('should retrieve user information with basic authentication', (done) => {
+    const authHeader = 'Basic dXNlcjEyMzQ1QGdtYWlsLmNvbTpQYXNzd29yZDEyMzQ1Ng==';
 
+    request(app)
+      .get('/v1/user/self')
+      .set('Authorization', authHeader)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        assert.strictEqual(res.body.first_name, 'Preksha');
+        assert.strictEqual(res.body.last_name, 'Yadav');
+        done();
+      });
+  });
+});
 
 // Close the server after all tests have run
 after((done) => {
