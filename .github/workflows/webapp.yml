@@ -21,7 +21,7 @@ jobs:
         run: sudo service postgresql start
 
       - name: Adjust Permissions on PostgreSQL Socket File
-        run: sudo chmod 777 /var/run/postgresql/.s.PGSQL.5432 || true
+        run: sudo chmod 700 /var/run/postgresql/.s.PGSQL.5432 || true
 
       - name: Change PostgreSQL Password
         run: |
