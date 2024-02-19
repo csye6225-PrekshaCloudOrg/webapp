@@ -1,0 +1,50 @@
+name: Packer Workflow
+
+on:
+  push:
+    branches:
+      - assignment04
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Packer
+      uses: hashicorp/setup-packer@v1
+      with:
+        version: 1.8.0
+
+    - name: Write credentials to file
+      run: echo "${{ secrets.GCP_CREDENTIALS }}" > packer/key.json
+
+    - name: Create .env file
+      run: |
+        echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer/.env
+        echo "DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> packer/.env
+        echo "PORT=5432" >> packer/.env
+        echo "WEB_SITE_PORT=3000" >> packer/.env
+        echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer/.env
+
+    - name: Create zip file
+      run: zip -r webapp-fork-main.zip .
+
+    
+    - name: Move zip file to packer folder
+      run: mv webapp-fork-main.zip packer/
+
+    - name: Initialize Packer
+      run: cd packer && packer init .
+
+    - name: Format Packer Configuration
+      run: cd packer && packer fmt .
+
+    - name: Validate Packer Configuration
+      run: cd packer && packer validate .
+
+    - name: Build the Packer image
+      run: cd packer && packer build image.pkr.hcl
+
