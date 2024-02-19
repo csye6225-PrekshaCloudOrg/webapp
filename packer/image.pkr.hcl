@@ -16,7 +16,7 @@ source "googlecompute" "centos8" {
   ssh_username            = "packer"
   machine_type            = "e2-medium"
   disk_size               = 100
-  image_name              = "centos-8-packer-${timestamp()}"
+  image_name              = "centos-8-packer-${formatdate("YYYYMMDDHHmmss", timestamp())}"
   credentials_file        = "./key.json"
   disk_type               = "pd-standard"
 }
