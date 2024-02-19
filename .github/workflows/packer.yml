@@ -22,22 +22,22 @@ jobs:
 
 
     - name: Write credentials to file
-      run: echo "${{ secrets.GCP_CREDENTIALS }}" > packer/key.json
+      run: echo "${{ secrets.GCP_CREDENTIALS }}" > packer_files/key.json
 
     - name: Create .env file
       run: |
-        echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer/.env
-        echo "DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> packer/.env
-        echo "PORT=5432" >> packer/.env
-        echo "WEB_SITE_PORT=3000" >> packer/.env
-        echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer/.env
+        echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer_files/.env
+        echo "DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> packer_files/.env
+        echo "PORT=5432" >> packer_files/.env
+        echo "WEB_SITE_PORT=3000" >> packer_files/.env
+        echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer_files/.env
 
     - name: Create zip file
       run: zip -r webapp-fork-main.zip .
 
     
     - name: Move zip file to packer folder
-      run: mv webapp-fork-main.zip packer/
+      run: mv webapp-fork-main.zip packer_files/
 
     - name: Initialize Packer
       run: cd packer_files && packer init .
