@@ -67,17 +67,17 @@ build {
   provisioner "shell" {
     inline = [
       "sudo yum install -y unzip",
-      "unzip /tmp/webapp-fork-main.zip -d /tmp/"
+      "unzip /tmp/webapp-fork-main.zip -d /tmp/webapp"
     ]
   }
 
   provisioner "file" {
     source      = ".env"
-    destination = "/tmp/webapp-fork-main/.env"
+    destination = "/tmp/webapp/.env"
   }
   provisioner "shell" {
     inline = [
-      "cd /tmp/webapp-fork-main && npm i"
+      "cd /tmp/webapp && npm i"
     ]
   }
 
