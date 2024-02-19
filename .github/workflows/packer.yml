@@ -13,11 +13,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup `packer`
-      uses: hashicorp/setup-packer@main
-      id: setup
-      with:
-        version: "v1.10.1"
+    - name: Install Packer
+      run: |
+        curl -fsSL https://releases.hashicorp.com/packer/1.10.1/packer_1.10.1_linux_amd64.zip -o packer.zip
+        unzip packer.zip
+        sudo mv packer /usr/local/bin/packer
+        packer version
+
 
     - name: Write credentials to file
       run: echo "${{ secrets.GCP_CREDENTIALS }}" > packer/key.json
