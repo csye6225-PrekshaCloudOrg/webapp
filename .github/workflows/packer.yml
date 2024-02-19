@@ -13,10 +13,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Packer
-      uses: hashicorp/setup-packer@v1
+    - name: Setup `packer`
+      uses: hashicorp/setup-packer@main
+      id: setup
       with:
-        version: 1.8.0
+        version: "latest"
 
     - name: Write credentials to file
       run: echo "${{ secrets.GCP_CREDENTIALS }}" > packer/key.json
