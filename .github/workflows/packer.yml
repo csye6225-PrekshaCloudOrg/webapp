@@ -40,14 +40,14 @@ jobs:
       run: mv webapp-fork-main.zip packer/
 
     - name: Initialize Packer
-      run: cd packer && packer init .
+      run: cd packer_files && packer init .
 
     - name: Format Packer Configuration
-      run: cd packer && packer fmt .
+      run: cd packer_files && packer fmt .
 
     - name: Validate Packer Configuration
-      run: cd packer && packer validate .
+      run: cd packer_files && packer validate .
 
     - name: Build the Packer image
-      run: cd packer && packer build image.pkr.hcl
+      run: cd packer_files && packer build image.pkr.hcl
 
