@@ -130,3 +130,4 @@ dist
 .pnp.*
 key.json
 webapp-fork-main.zip
+webapp.yml

@@ -2,7 +2,10 @@ name: Compile Code
 on:
   pull_request:
     branches:
-      - main
+      - assignment04 # Define the branch where you want to run the workflow for pull requests
+  push:
+    branches:
+      - assignment04
 
 jobs:
   build:
