@@ -1,7 +1,7 @@
 name: Packer Workflow
 
 on:
-  push:
+  pull_request:
     branches:
       - assignment04
 
@@ -21,17 +21,6 @@ jobs:
       env:
         PACKER_VERSION: "1.10.0"
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
-
-    - name: 'Use gcloud CLI'
-      run: 'gcloud info'
-
     - name: Create .env file
       run: |
         echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer_files/.env
@@ -49,6 +38,8 @@ jobs:
     - name: Initialize Packer
       run: cd packer_files && packer init .
 
-    - name: Build the Packer image
-      run: cd packer_files && packer build image.pkr.hcl
+    - name: Format Packer Configuration
+      run: cd packer_files && packer fmt .
 
+    - name: Validate Packer Configuration
+      run: cd packer_files && packer validate .
