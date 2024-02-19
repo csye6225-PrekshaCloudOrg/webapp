@@ -1,0 +1,12 @@
+[Unit]
+Description=Web Application Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/tmp/webapp-fork-main
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
