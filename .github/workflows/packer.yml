@@ -17,7 +17,7 @@ jobs:
       uses: hashicorp/setup-packer@main
       id: setup
       with:
-        version: "latest"
+        version: "v1.10.1"
 
     - name: Write credentials to file
       run: echo "${{ secrets.GCP_CREDENTIALS }}" > packer/key.json
