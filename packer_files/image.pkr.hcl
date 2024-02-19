@@ -60,22 +60,22 @@ build {
     ]
   }
 
-  provisioner "file" {
-    source      = "webapp-fork-main.zip"
-    destination = "/tmp/webapp-fork-main.zip"
-  }
+  # provisioner "file" {
+  #   source      = "webapp-fork-main.zip"
+  #   destination = "/tmp/webapp-fork-main.zip"
+  # }
 
-  provisioner "shell" {
-    inline = [
-      "sudo yum install -y unzip",
-      "unzip /tmp/webapp-fork-main.zip -d /tmp/"
-    ]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     "sudo yum install -y unzip",
+  #     "unzip /tmp/webapp-fork-main.zip -d /tmp/"
+  #   ]
+  # }
 
-  provisioner "file" {
-    source      = ".env"
-    destination = "/tmp/webapp-fork-main/.env"
-  }
+  # provisioner "file" {
+  #   source      = ".env"
+  #   destination = "/tmp/webapp-fork-main/.env"
+  # }
   provisioner "shell" {
     inline = [
       "cd /tmp/webapp-fork-main && npm i"
