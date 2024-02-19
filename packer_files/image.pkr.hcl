@@ -67,7 +67,8 @@ build {
   provisioner "shell" {
     inline = [
       "sudo yum install -y unzip",
-      "unzip /tmp/webapp-fork-main.zip -d /tmp/webapp"
+      "unzip /tmp/webapp-fork-main.zip -d /tmp/webapp",
+      "sudo chown -R csye6225:csye6225 tmp/webapp"
     ]
   }
 
