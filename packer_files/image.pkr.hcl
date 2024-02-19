@@ -17,7 +17,6 @@ source "googlecompute" "centos8" {
   machine_type            = "e2-medium"
   disk_size               = 100
   image_name              = "centos-8-packer-${formatdate("YYYYMMDDHHmmss", timestamp())}"
-  # credentials_file        = "./key.json"
   disk_type               = "pd-standard"
 }
 
