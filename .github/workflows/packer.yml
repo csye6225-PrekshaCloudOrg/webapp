@@ -33,12 +33,12 @@ jobs:
         echo "WEB_SITE_PORT=3000" >> packer_files/.env
         echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer_files/.env
 
-    # - name: Create zip file
-    #   run: zip -r webapp-fork-main.zip .
+    - name: Create zip file
+      run: zip -r webapp-fork-main.zip .
 
     
-    # - name: Move zip file to packer folder
-    #   run: mv webapp-fork-main.zip packer_files/
+    - name: Move zip file to packer folder
+      run: mv webapp-fork-main.zip packer_files/
 
     - name: Initialize Packer
       run: cd packer_files && packer init .
