@@ -71,11 +71,6 @@ build {
     ]
   }
 
-  provisioner "shell" {
-    inline = [
-      "sudo chown -R csye6225:csye6225 /tmp/webapp"
-    ]
-  }
 
   provisioner "file" {
     source      = ".env"
@@ -84,6 +79,12 @@ build {
   provisioner "shell" {
     inline = [
       "cd /tmp/webapp && npm i"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo chown -R csye6225:csye6225 /tmp/webapp"
     ]
   }
 
