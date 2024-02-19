@@ -17,7 +17,7 @@ source "googlecompute" "centos8" {
   machine_type            = "e2-medium"
   disk_size               = 100
   image_name              = "centos-8-packer-${formatdate("YYYYMMDDHHmmss", timestamp())}"
-  credentials_file        = "./key.json"
+  # credentials_file        = "./key.json"
   disk_type               = "pd-standard"
 }
 
@@ -60,22 +60,22 @@ build {
     ]
   }
 
-  # provisioner "file" {
-  #   source      = "webapp-fork-main.zip"
-  #   destination = "/tmp/webapp-fork-main.zip"
-  # }
+  provisioner "file" {
+    source      = "webapp-fork-main.zip"
+    destination = "/tmp/webapp-fork-main.zip"
+  }
 
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo yum install -y unzip",
-  #     "unzip /tmp/webapp-fork-main.zip -d /tmp/"
-  #   ]
-  # }
+  provisioner "shell" {
+    inline = [
+      "sudo yum install -y unzip",
+      "unzip /tmp/webapp-fork-main.zip -d /tmp/"
+    ]
+  }
 
-  # provisioner "file" {
-  #   source      = ".env"
-  #   destination = "/tmp/webapp-fork-main/.env"
-  # }
+  provisioner "file" {
+    source      = ".env"
+    destination = "/tmp/webapp-fork-main/.env"
+  }
   provisioner "shell" {
     inline = [
       "cd /tmp/webapp-fork-main && npm i"
@@ -89,6 +89,5 @@ build {
       "sudo systemctl start webapp.service"
     ]
   }
-
 
 }
