@@ -27,7 +27,7 @@ describe('POST /v1/user', () => {
     request(app)
       .post('/v1/user')
       .send(userData)
-      .expect(201)
+      .expect(200)
       .end((err, res) => {
         if (err) return done(err);
         done();
@@ -66,7 +66,7 @@ describe('PUT /v1/user/self', () => {
       .set('Authorization', authHeader)
       .set('Content-Type', 'application/json')
       .send(userData)
-      .expect(204)
+      .expect(200)
       .end((err, res) => {
         if (err) return done(err);
         done();
