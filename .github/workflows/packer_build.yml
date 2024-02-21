@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - assign4-workflow
+      - main
 
 jobs:
   build:
