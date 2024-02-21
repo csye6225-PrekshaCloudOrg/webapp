@@ -1,9 +1,8 @@
 name: Packer Workflow
 
 on:
-  # pull_request:
-  #   types: [closed]
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - assign4-workflow
 
