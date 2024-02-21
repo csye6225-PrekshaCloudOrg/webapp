@@ -12,49 +12,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install Packer
-      run: |
+      - name: Install Packer
+        run: |
           curl -O https://releases.hashicorp.com/packer/${{ env.PACKER_VERSION }}/packer_${{ env.PACKER_VERSION }}_linux_amd64.zip
           unzip packer_${{ env.PACKER_VERSION }}_linux_amd64.zip
           sudo mv packer /usr/local/bin
-      env:
-        PACKER_VERSION: "1.10.0"
+        env:
+          PACKER_VERSION: "1.10.0"
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
 
-    - name: 'Use gcloud CLI'
-      run: 'gcloud info'
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
 
-    - name: Create .env file
-      run: |
-        echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer_files/.env
-        echo "DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> packer_files/.env
-        echo "PORT=5432" >> packer_files/.env
-        echo "WEB_SITE_PORT=3000" >> packer_files/.env
-        echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer_files/.env
+      - name: Create .env file
+        run: |
+          echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer_files/.env
+          echo "DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> packer_files/.env
+          echo "PORT=5432" >> packer_files/.env
+          echo "WEB_SITE_PORT=3000" >> packer_files/.env
+          echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer_files/.env
 
-    - name: Create zip file
-      run: zip -r webapp-fork-main.zip .
-    
-    - name: Move zip file to packer folder
-      run: mv webapp-fork-main.zip packer_files/
+      - name: Create zip file
+        run: zip -r webapp-fork-main.zip .
 
-    - name: Initialize Packer
-      run: cd packer_files && packer init .
+      - name: Move zip file to packer folder
+        run: mv webapp-fork-main.zip packer_files/
 
-    - name: Build the Packer image
-      run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
+      - name: Initialize Packer
+        run: cd packer_files && packer init .
 
-    - name: Start PostgreSQL Service
+      - name: Build the Packer image
+        run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
+
+      - name: Start PostgreSQL Service
         if: ${{ !contains(steps.status.outputs.service_status, 'running') }}
         run: sudo service postgresql start
 
@@ -64,7 +64,6 @@ jobs:
       - name: Change PostgreSQL Password
         run: |
           sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}';"
-
 
       - name: Update PostgreSQL Authentication Method
         run: |
