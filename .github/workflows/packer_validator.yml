@@ -42,4 +42,4 @@ jobs:
       run: cd packer_files && packer fmt .
 
     - name: Validate Packer Configuration
-      run: cd packer_files && packer validate .
+      run: cd packer_files && packer validate -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" .
