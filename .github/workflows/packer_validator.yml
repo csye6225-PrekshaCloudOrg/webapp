@@ -3,7 +3,7 @@ name: Packer Workflow
 on:
   pull_request:
     branches:
-      - assign4-workflow
+      - main
 
 jobs:
   build:
