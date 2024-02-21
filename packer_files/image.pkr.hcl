@@ -75,11 +75,11 @@ source "googlecompute" "centos8" {
 build {
   sources = ["source.googlecompute.centos8"]
 
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo yum update -y"
-  #   ]
-  # }
+  provisioner "shell" {
+    inline = [
+      "sudo yum update -y"
+    ]
+  }
   provisioner "file" {
     source      = "webapp.service"
     destination = "/tmp/webapp.service"
