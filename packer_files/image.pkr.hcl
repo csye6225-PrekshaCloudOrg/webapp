@@ -8,16 +8,68 @@ packer {
 }
 
 
+################################ Defining variables ################################
+variable "project_id" {
+  type    = string
+  description = "The Google Cloud project ID"
+  #default = "dev-gcp-414600"
+}
+
+variable "zone" {
+  type    = string
+  description = "The zone in which the instance will be created"
+  default = "us-central1-a"
+}
+
+variable "source_image_family" {
+  type    = string
+  description = "The family name of the source image"
+  default = "centos-stream-8"
+}
+
+variable "source_image_project_id" {
+  type    = list(string)
+  description = "The project ID of the source image"
+  default = ["centos-cloud"]
+}
+
+variable "ssh_username" {
+  type    = string
+  description = "The SSH username"
+  default = "packer"
+}
+
+variable "machine_type" {
+  type    = string
+  description = "The machine type of the instance"
+  default = "e2-medium"
+}
+
+variable "disk_size" {
+  type    = number
+  description = "The size of the disk in GB"
+  default = 100
+}
+
+variable "disk_type" {
+  type    = string
+  description = "The type of disk"
+  default = "pd-standard"
+}
+
+
+################################ Configurations ################################
+
 source "googlecompute" "centos8" {
-  project_id              = "dev-gcp-414600"
-  zone                    = "us-central1-a"
-  source_image_family     = "centos-stream-8"
-  source_image_project_id = ["centos-cloud"]
-  ssh_username            = "packer"
-  machine_type            = "e2-medium"
-  disk_size               = 100
+  project_id              = var.project_id
+  zone                    = var.zone
+  source_image_family     = var.source_image_family
+  source_image_project_id = var.source_image_project_id
+  ssh_username            = var.ssh_username
+  machine_type            = var.machine_type
+  disk_size               = var.disk_size
   image_name              = "centos-8-packer-${formatdate("YYYYMMDDHHmmss", timestamp())}"
-  disk_type               = "pd-standard"
+  disk_type               = var.disk_type
 }
 
 build {
