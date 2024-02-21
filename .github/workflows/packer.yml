@@ -1,12 +1,14 @@
 name: Packer Workflow
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - assignment04
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -50,5 +52,4 @@ jobs:
       run: cd packer_files && packer init .
 
     - name: Build the Packer image
-      run: cd packer_files && packer build image.pkr.hcl
-
+      run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
