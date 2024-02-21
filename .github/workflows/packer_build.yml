@@ -2,11 +2,13 @@ name: Packer Workflow
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - assign4-workflow
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +22,17 @@ jobs:
           sudo mv packer /usr/local/bin
       env:
         PACKER_VERSION: "1.10.0"
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
 
     - name: Create .env file
       run: |
@@ -38,11 +51,8 @@ jobs:
     - name: Initialize Packer
       run: cd packer_files && packer init .
 
-    - name: Format Packer Configuration
-      run: cd packer_files && packer fmt .
-
-    - name: Validate Packer Configuration
-      run: cd packer_files && packer validate -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" .
+    - name: Build the Packer image
+      run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
 
     - name: Start PostgreSQL Service
         if: ${{ !contains(steps.status.outputs.service_status, 'running') }}
