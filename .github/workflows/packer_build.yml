@@ -34,14 +34,6 @@ jobs:
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
 
-      - name: Create .env file
-        run: |
-          echo "DB_USERNAME=${{ secrets.POSTGRES_USER }}" > packer_files/.env
-          echo "DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> packer_files/.env
-          echo "PORT=5432" >> packer_files/.env
-          echo "WEB_SITE_PORT=3000" >> packer_files/.env
-          echo "DB_DATABASE=${{ secrets.POSTGRES_DB }}" >> packer_files/.env
-
       - name: Create zip file
         run: zip -r webapp-fork-main.zip .
 
@@ -91,4 +83,5 @@ jobs:
           DB_DATABASE: ${{ secrets.POSTGRES_DB }}
           PORT: 5432
           WEB_SITE_PORT: 3000
+          DB_HOST: ${{ secrets.POSTGRES_HOST }}
         run: npm test
