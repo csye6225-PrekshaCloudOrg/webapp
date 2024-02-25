@@ -81,4 +81,5 @@ jobs:
         DB_DATABASE: ${{ secrets.POSTGRES_DB }}
         PORT: 5432
         WEB_SITE_PORT: 3000
+        DB_HOST: ${{ secrets.POSTGRES_HOST }}
       run: npm test
