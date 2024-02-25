@@ -1,9 +1,9 @@
 name: Packer Workflow
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - assignment05
 
 jobs:
   build:
