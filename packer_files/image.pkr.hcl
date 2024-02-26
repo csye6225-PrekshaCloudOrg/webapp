@@ -106,7 +106,7 @@ build {
   }
   provisioner "shell" {
     inline = [
-      "sudo chmod +x /tmp/startUp.sh",
+      "sudo chmod +x /tmp/startUp.sh"
       "sudo /tmp/startUp.sh"
     ]
   }
