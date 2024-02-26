@@ -96,7 +96,7 @@ build {
   }
   provisioner "shell" {
     inline = [
-      "sudo chmod +x /tmp/userCreation.sh",
+      "sudo chmod +x /tmp/userCreation.sh"
       "sudo /tmp/userCreation.sh"
     ]
   }
