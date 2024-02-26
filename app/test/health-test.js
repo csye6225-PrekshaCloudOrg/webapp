@@ -2,6 +2,14 @@ const request = require('supertest');
 const assert = require('assert');
 const { app, server } = require('../../server'); 
 
+before(async function () {
+  try {
+    await db.sequelize.sync({ logging: console.log });
+  } catch (error) {
+    console.error('Failed to sync db:', error);
+  }
+});
+
 describe('GET /healthz', () => {
   it('should return status 200 if database connection is successful', (done) => {
     request(app)
