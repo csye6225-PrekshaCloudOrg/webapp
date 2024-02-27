@@ -3,11 +3,11 @@ name: Packer Workflow
 on:
   push:
     branches:
-      - assignment05
+      - main
 
 jobs:
   build:
-    #if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
