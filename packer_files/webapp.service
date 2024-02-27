@@ -2,13 +2,15 @@
 Description=Web Application Server
 ConditionPathExists=/tmp/webapp/server.js
 After=network.target
+target = cloud.init
 
 [Service]
 Type=simple
 User=csye6225
 Group=csye6225
 WorkingDirectory=/tmp/webapp
-ExecStart=/usr/bin/npm start
+Environment=/tmp/webapp/.env
+ExecStart=/bin/bash -c 'if [[ -f /tmp/webapp/.env ]]; then /usr/bin/npm start; fi'
 Restart=always
 RestartSec=3
 StandardOutput=syslog

@@ -12,7 +12,7 @@ packer {
 variable "project_id" {
   type    = string
   description = "The Google Cloud project ID"
-  #default = "dev-gcp-414600"
+  default = "dev-gcp-414600"
 }
 
 variable "zone" {
@@ -75,11 +75,11 @@ source "googlecompute" "centos8" {
 build {
   sources = ["source.googlecompute.centos8"]
 
-  provisioner "shell" {
-    inline = [
-      "sudo yum update -y"
-    ]
-  }
+  # provisioner "shell" {
+  #   inline = [
+  #     "sudo yum update -y"
+  #   ]
+  # }
   provisioner "file" {
     source      = "webapp.service"
     destination = "/tmp/webapp.service"
@@ -124,10 +124,6 @@ build {
   }
 
 
-  provisioner "file" {
-    source      = ".env"
-    destination = "/tmp/webapp/.env"
-  }
   provisioner "shell" {
     inline = [
       "cd /tmp/webapp && npm i"
@@ -136,15 +132,15 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo chown -R csye6225:csye6225 /tmp/webapp"
+      "sudo chown -R csye6225:csye6225 /tmp/webapp",
+      "sudo chmod -R 770 /tmp/webapp"
     ]
   }
 
   provisioner "shell" {
     inline = [
       "sudo systemctl daemon-reload",
-      "sudo systemctl enable webapp.service",
-      "sudo systemctl start webapp.service"
+      "sudo systemctl enable webapp.service"    
     ]
   }
 

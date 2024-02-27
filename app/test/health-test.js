@@ -2,6 +2,7 @@ const request = require('supertest');
 const assert = require('assert');
 const { app, server } = require('../../server'); 
 
+
 describe('GET /healthz', () => {
   it('should return status 200 if database connection is successful', (done) => {
     request(app)
