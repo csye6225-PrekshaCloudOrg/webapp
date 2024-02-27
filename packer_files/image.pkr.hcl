@@ -133,7 +133,7 @@ build {
   provisioner "shell" {
     inline = [
       "sudo chown -R csye6225:csye6225 /tmp/webapp",
-      "sudo chmod -R 750 /tmp/webapp"
+      "sudo chmod -R 770 /tmp/webapp"
     ]
   }
 
