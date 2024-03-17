@@ -3,7 +3,20 @@ const User = db.User;
 const Op = db.Sequelize.Op;
 const bcrypt = require("bcrypt");
 const uuidv4 = require("uuid");
+const bunyan = require('bunyan');
+const Logger = require('node-json-logger');
+const logFilePath = '/var/log/webapp.log';
+const fs = require('fs');
 
+const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+
+const logger = bunyan.createLogger({
+    name: 'myapp',
+    streams: [
+      { stream: process.stdout }, 
+      { stream: logStream },      // Log to file
+    ],
+  });
 
 function decryptString(authheader) {
     if (authheader && authheader.startsWith('Basic ')) {
@@ -28,6 +41,7 @@ exports.create = async (req, res)=>{
         const emailExists = await User.findOne({ where: { username: req.body.username } });
         if (emailExists ) {
             res.status(400).send("Email already registered")
+            logger.error('Email already registered');
         }
         else{
             const hashedPassword = bcrypt.hashSync(req.body.password, 10);
@@ -47,11 +61,13 @@ exports.create = async (req, res)=>{
                 const { password, ...userDataWithoutPassword } = data.dataValues;
                 res.status(201)
                 .send(userDataWithoutPassword);
+                logger.info('User created', userDataWithoutPassword);
             })
             .catch(err =>{
                 res.status(400)
                 .send({ message:
                     err.message || "Some error occurred while creating the User."})
+                logger.error('Some error occurred while creating the User.');
             });
             }
         }
@@ -75,6 +91,7 @@ exports.findOne = (req, res) => {
             
             if (decryptedUsername === null || decryptedPassword === null) {
                 res.status(401).send('Unauthorized');
+                logger.error('Unauthorized');
             } else {
                 User.findOne({
                     where: {
@@ -92,6 +109,7 @@ exports.findOne = (req, res) => {
                             const { password, ...userDataWithoutPassword } = user.dataValues;
                             console.log(userDataWithoutPassword);
                             res.status(200).send(userDataWithoutPassword);
+                            logger.info('User fetched', userDataWithoutPassword);
                         }
                     }
                 })
@@ -127,10 +145,12 @@ exports.updateUser = (req, res) => {
             .then(user => {
                 if (!user) {
                     res.status(401).send('User not found');
+                    logger.error('User not found');
                 } else {
                     const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
                     if (!isPasswordValid) {
                         res.status(401).send('Invalid password');
+                        logger.error('Invalid password');
                     } else {
                         // Update the user's information
                         const updatedFields = {};
@@ -149,6 +169,7 @@ exports.updateUser = (req, res) => {
                         })
                         .then(() => {
                             res.status(204).send();
+                            logger.info('User updated',updatedFields);
                         })
                         .catch(error => {
                             console.error('Error updating user:', error);
