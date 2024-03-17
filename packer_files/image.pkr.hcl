@@ -116,10 +116,17 @@ build {
     destination = "/tmp/webapp-fork-main.zip"
   }
 
+  provisioner "file" {
+    source      = "config.yaml"
+    destination = "/tmp/config.yaml"
+  }
+
   provisioner "shell" {
     inline = [
       "sudo yum install -y unzip",
-      "unzip /tmp/webapp-fork-main.zip -d /tmp/webapp"
+      "unzip /tmp/webapp-fork-main.zip -d /tmp/webapp",
+      "sudo touch /var/log/webapp.log",
+      "sudo cp /tmp/config.yaml /etc/google-cloud-ops-agent/config.yaml"
     ]
   }
 
@@ -132,14 +139,17 @@ build {
   provisioner "shell" {
     inline = [
       "sudo chown -R csye6225:csye6225 /tmp/webapp",
-      "sudo chmod -R 770 /tmp/webapp"
+      "sudo chmod -R 770 /tmp/webapp",
+      "sudo chown csye6225:csye6225 /var/log/webapp.log",
+      "sudo chmod u+w /var/log/webapp.log"
     ]
   }
 
   provisioner "shell" {
     inline = [
       "sudo systemctl daemon-reload",
-      "sudo systemctl enable webapp.service"
+      "sudo systemctl enable webapp.service",
+      "sudo systemctl restart google-cloud-ops-agent"
     ]
   }
 
