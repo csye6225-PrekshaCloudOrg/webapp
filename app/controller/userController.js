@@ -33,6 +33,18 @@ log._emit = function (rec, noemit) {
   originalWrite.call(this, rec, noemit);
 };
 
+function decryptString(authheader) {
+    if (authheader && authheader.startsWith('Basic ')) {
+        const base64Credentials = authheader.split(' ')[1];
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+        const [passed_username, passed_password] = credentials.split(':');
+        console.log(passed_username,passed_password);
+        return [passed_username , passed_password];
+    }
+    else
+        return null;
+}
+
 exports.create = async (req, res)=>{
     try{
 
