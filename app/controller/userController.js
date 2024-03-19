@@ -4,32 +4,34 @@ const Op = db.Sequelize.Op;
 const bcrypt = require("bcrypt");
 const uuidv4 = require("uuid");
 const bunyan = require('bunyan');
-const Logger = require('node-json-logger');
-const logFilePath = '/var/log/webapp.log';
-const fs = require('fs');
+const os = require("os");
 
-const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+const severityMap = {
+  10: 'DEBUG',    // Bunyan's TRACE level
+  20: 'DEBUG',    // Bunyan's DEBUG level
+  30: 'INFO',     // Bunyan's INFO level
+  40: 'WARNING',  // Bunyan's WARN level
+  50: 'ERROR',    // Bunyan's ERROR level
+  60: 'CRITICAL', // Bunyan's FATAL level
+};
 
-const logger = bunyan.createLogger({
-    name: 'myapp',
-    streams: [
-      { stream: process.stdout }, 
-      { stream: logStream },      // Log to file
-    ],
-  });
+const log = bunyan.createLogger({
+  name: 'webapp',
+  streams: [
+    { path: '/var/log/webapp.log' } // Log file path
+  ],
+  serializers: bunyan.stdSerializers,
+  // Extend the log record using the serializers field
+  levelFn: (level, levelName) => {
+    return { 'severity': severityMap[level] };
+  }
+});
 
-function decryptString(authheader) {
-    if (authheader && authheader.startsWith('Basic ')) {
-        const base64Credentials = authheader.split(' ')[1];
-        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-        const [passed_username, passed_password] = credentials.split(':');
-        console.log(passed_username,passed_password);
-        return [passed_username , passed_password];
-    }
-    else
-        return null;
-}
-
+const originalWrite = log._emit;
+log._emit = function (rec, noemit) {
+  rec.severity = severityMap[rec.level];
+  originalWrite.call(this, rec, noemit);
+};
 
 exports.create = async (req, res)=>{
     try{
@@ -41,7 +43,7 @@ exports.create = async (req, res)=>{
         const emailExists = await User.findOne({ where: { username: req.body.username } });
         if (emailExists ) {
             res.status(400).send("Email already registered")
-            logger.error('Email already registered');
+            log.error('Email already registered');
         }
         else{
             const hashedPassword = bcrypt.hashSync(req.body.password, 10);
@@ -61,13 +63,13 @@ exports.create = async (req, res)=>{
                 const { password, ...userDataWithoutPassword } = data.dataValues;
                 res.status(201)
                 .send(userDataWithoutPassword);
-                logger.info('User created', userDataWithoutPassword);
+                log.info('User created', { msg: JSON.stringify(userDataWithoutPassword, null, 2) });
             })
             .catch(err =>{
                 res.status(400)
                 .send({ message:
                     err.message || "Some error occurred while creating the User."})
-                logger.error('Some error occurred while creating the User.');
+                log.error('Some error occurred while creating the User.');
             });
             }
         }
@@ -91,7 +93,7 @@ exports.findOne = (req, res) => {
             
             if (decryptedUsername === null || decryptedPassword === null) {
                 res.status(401).send('Unauthorized');
-                logger.error('Unauthorized');
+                log.error('Unauthorized');
             } else {
                 User.findOne({
                     where: {
@@ -109,7 +111,7 @@ exports.findOne = (req, res) => {
                             const { password, ...userDataWithoutPassword } = user.dataValues;
                             console.log(userDataWithoutPassword);
                             res.status(200).send(userDataWithoutPassword);
-                            logger.info('User fetched', userDataWithoutPassword);
+                            log.info('User fetched', userDataWithoutPassword);
                         }
                     }
                 })
@@ -145,12 +147,12 @@ exports.updateUser = (req, res) => {
             .then(user => {
                 if (!user) {
                     res.status(401).send('User not found');
-                    logger.error('User not found');
+                    log.error('User not found');
                 } else {
                     const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
                     if (!isPasswordValid) {
                         res.status(401).send('Invalid password');
-                        logger.error('Invalid password');
+                        log.error('Invalid password');
                     } else {
                         // Update the user's information
                         const updatedFields = {};
@@ -169,7 +171,7 @@ exports.updateUser = (req, res) => {
                         })
                         .then(() => {
                             res.status(204).send();
-                            logger.info('User updated',updatedFields);
+                            log.info('User updated',{ msg: JSON.stringify(updatedFields, null, 2) });
                         })
                         .catch(error => {
                             console.error('Error updating user:', error);
