@@ -1,40 +1,50 @@
 const express = require("express");
 const cors = require("cors");
-require('dotenv').config()
+require('dotenv').config();
 const app = express();
 const healthRouter = require('./app/routes/routes');
 const bunyan = require('bunyan');
-const Logger = require('node-json-logger');
-const logFilePath = '/var/log/webapp.log';
-const fs = require('fs');
+const os = require("os");
 
-const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
+const severityMap = {
+  10: 'DEBUG',    // Bunyan's TRACE level
+  20: 'DEBUG',    // Bunyan's DEBUG level
+  30: 'INFO',     // Bunyan's INFO level
+  40: 'WARNING',  // Bunyan's WARN level
+  50: 'ERROR',    // Bunyan's ERROR level
+  60: 'CRITICAL', // Bunyan's FATAL level
+};
 
-const logger = bunyan.createLogger({
-    name: 'myapp',
-    streams: [
-      { stream: process.stdout }, 
-      { stream: logStream },      // Log to file
-    ],
-  });
+const log = bunyan.createLogger({
+  name: 'webapp',
+  streams: [
+    { path: '/var/log/webapp.log' } // Log file path
+  ],
+  serializers: bunyan.stdSerializers,
+  // Extend the log record using the serializers field
+  levelFn: (level, levelName) => {
+    return { 'severity': severityMap[level] };
+  }
+});
 
-// var corsOptions = {
-//   origin: "http://localhost:8081"
-// };
+const originalWrite = log._emit;
+log._emit = function (rec, noemit) {
+  rec.severity = severityMap[rec.level];
+  originalWrite.call(this, rec, noemit);
+};
 
-//app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const db = require("./app/model");
 db.sequelize.sync({ alter: true })
   .then(() => {
-    logger.info('Synced db.');
+    log.info('Synced db.'); // Log with severity INFO
     console.log("Synced db.");
   })
   .catch((err) => {
-    logger.info('Failed to sync db',err.message);
-    console.log("Failed to sync db: " + err.message);
+    log.error('Failed to sync db', { error: err.message }); // Log with severity ERROR
+    console.error("Failed to sync db: " + err.message);
   });
 
 app.use('/', healthRouter);
