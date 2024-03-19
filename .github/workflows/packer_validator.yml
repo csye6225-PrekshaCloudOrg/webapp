@@ -73,6 +73,11 @@ jobs:
 
     - name: Install Dependencies
       run: npm install
+    
+    - name: Create webapp.log file and grant write permissions
+      run: |
+        sudo touch /var/log/webapp.log
+        sudo chmod 777 /var/log/webapp.log
 
     - name: Run Tests
       env:
