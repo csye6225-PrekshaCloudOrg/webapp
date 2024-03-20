@@ -21,7 +21,7 @@ const log = bunyan.createLogger({
     { path: '/var/log/webapp.log' } // Log file path
   ],
   serializers: bunyan.stdSerializers,
-  // Extend the log record using the serializers field
+  level: 'debug', 
   levelFn: (level, levelName) => {
     return { 'severity': severityMap[level] };
   }
@@ -52,6 +52,10 @@ app.use('/', healthRouter);
 const PORT = 3000;
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  log.info('Test Log - INFO');
+  log.error('Test log - Error');
+  log.warn('Test log - Warning'); // Changed from log.warning to log.warn
+  log.debug('Test log - Debug');
 });
 
 module.exports = { app, server };
