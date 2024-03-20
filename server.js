@@ -39,6 +39,8 @@ app.use(express.urlencoded({ extended: true }));
 const db = require("./app/model");
 db.sequelize.sync({ alter: true })
   .then(() => {
+    log.warn('Data Models creation in progress'); // Changed from log.warning to log.warn
+    log.debug('DEBUG POINT : Data Model created');
     log.info('Synced db.'); // Log with severity INFO
     console.log("Synced db.");
   })
@@ -52,8 +54,6 @@ app.use('/', healthRouter);
 const PORT = 3000;
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  log.info('Test Log - INFO');
-  log.error('Test log - Error');
   log.warn('Test log - Warning'); // Changed from log.warning to log.warn
   log.debug('Test log - Debug');
 });
