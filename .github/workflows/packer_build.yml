@@ -79,8 +79,7 @@ jobs:
       - name: Create webapp.log file and grant write permissions
         run: |
           sudo touch /var/log/webapp.log
-          sudo chown root /var/log/webapp.log
-          sudo chmod 640 /var/log/webapp.log
+          sudo chmod 666 /var/log/webapp.log
 
       - name: Run Tests
         env:
