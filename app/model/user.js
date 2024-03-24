@@ -35,6 +35,13 @@ module.exports=(sequelize, DataTypes) => {
         },
         account_updated:{
             type:DataTypes.DATE
+        },
+        token:{
+            type:DataTypes.STRING,
+            unique: true
+        },
+        verified:{
+            type:DataTypes.BOOLEAN,
         }
     },
     {

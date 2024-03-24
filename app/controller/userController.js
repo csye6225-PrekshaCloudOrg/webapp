@@ -2,10 +2,12 @@ const db = require('../model');
 const User = db.User;
 const Op = db.Sequelize.Op;
 const bcrypt = require("bcrypt");
-const uuidv4 = require("uuid");
+const { v4: uuidv4 } = require('uuid');
 const bunyan = require('bunyan');
 const os = require("os");
+const { PubSub } = require('@google-cloud/pubsub');
 
+const pubSubClient = new PubSub();
 const severityMap = {
   10: 'DEBUG',    // Bunyan's TRACE level
   20: 'DEBUG',    // Bunyan's DEBUG level
@@ -45,60 +47,79 @@ function decryptString(authheader) {
         return null;
 }
 
-exports.create = async (req, res)=>{
-    try{
 
-        if(!req.body.first_name || !req.body.last_name || !req.body.username || !req.body.password){
-            res.status(400).send();
-        }else{
-        
-        const emailExists = await User.findOne({ where: { username: req.body.username } });
-        if (emailExists ) {
-            res.status(400).send("Email already registered")
-            log.error('Email already registered');
-        }
-        else{
-            const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-            const date = new Date();
-            console.log("############",hashedPassword)
-            const user = {
-                first_name: req.body.first_name,
-                last_name: req.body.last_name,
-                username: req.body.username,
-                password:hashedPassword,
-                account_created: date.toString(),
-                account_updated: date.toString()
-            }
+const publishToPubSub = async (userDataWithoutPassword) => {
+    const { username, first_name, last_name, token } = userDataWithoutPassword;
+    const verification_URL = `http://preksha.me.:3000/verify/${token}`;
+    let messageData = {};
+    messageData.email = username;
+    messageData.first_name = first_name;
+    messageData.last_name = last_name;
+    messageData.token = token;
+    messageData.verification_URL = verification_URL;
+    const dataBuffer = Buffer.from(JSON.stringify(messageData));
     
-            User.create(user)
-            .then(data =>{
-                const { password, ...userDataWithoutPassword } = data.dataValues;
-                res.status(201)
-                .send(userDataWithoutPassword);
-                log.info('User created', { msg: JSON.stringify(userDataWithoutPassword, null, 2) });
-            })
-            .catch(err =>{
-                res.status(400)
-                .send({ message:
-                    err.message || "Some error occurred while creating the User."})
-                log.error('Some error occurred while creating the User.');
-            });
+    try {
+        await pubSubClient.topic('verify_email').publish(dataBuffer);
+        console.log('Message published to Pub/Sub');
+    } catch (err) {
+        console.error('Error publishing message:', err);
+    }
+};
+
+exports.create = async (req, res) => {
+    try {
+        if (!req.body.first_name || !req.body.last_name || !req.body.username || !req.body.password) {
+            res.status(400).send();
+        } else {
+            const emailExists = await User.findOne({ where: { username: req.body.username } });
+            if (emailExists) {
+                res.status(400).send("Email already registered");
+                log.error('Email already registered');
+            } else {
+                const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+                const date = new Date();
+                console.log("############", hashedPassword);
+                const token = uuidv4();
+                const user = {
+                    first_name: req.body.first_name,
+                    last_name: req.body.last_name,
+                    username: req.body.username,
+                    password: hashedPassword,
+                    account_created: date.toString(),
+                    account_updated: date.toString(),
+                    token: token
+                };
+
+                User.create(user)
+                    .then(data => {
+                        const { password, ...userDataWithoutPassword } = data.dataValues;
+                        res.status(201).send(userDataWithoutPassword);
+                        log.info('User created', { msg: JSON.stringify(userDataWithoutPassword, null, 2) });
+
+                        // Check if infra is prod before publishing to Pub/Sub
+                        if (process.env.INFRA === 'prod') {
+                            publishToPubSub(userDataWithoutPassword);
+                        }
+                    })
+                    .catch(err => {
+                        res.status(400).send({ message: err.message || "Some error occurred while creating the User." });
+                        log.error('Some error occurred while creating the User.');
+                    });
             }
         }
-
-    }catch (error){
+    } catch (error) {
         console.error('Health check error:', error);
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         return res.status(503).send();
     }
 };
 
-
 exports.findOne = (req, res) => {
     try{
 
         const authHeader = req.headers.authorization;
-        console.log(authHeader); // Make sure you are getting the expected value in the authHeader
+        console.log(authHeader);
 
         if (authHeader && authHeader.startsWith('Basic ')) {
             const [decryptedUsername, decryptedPassword] = decryptString(authHeader);
@@ -116,15 +137,24 @@ exports.findOne = (req, res) => {
                     if (!user) {
                         res.status(401).send();
                     } else {
-                        const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
-                        if (!isPasswordValid) {
-                            res.status(401).send();
-                        } else {
-                            const { password, ...userDataWithoutPassword } = user.dataValues;
-                            console.log(userDataWithoutPassword);
-                            res.status(200).send(userDataWithoutPassword);
-                            log.info('User fetched', userDataWithoutPassword);
+                        if (!user.verified && process.env.INFRA === 'prod')
+                        {
+                            res.status(400).send("User is not verified");
+                            log.warn('User is not verified');
                         }
+                        else
+                        {
+                            const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
+                            if (!isPasswordValid) {
+                                res.status(401).send();
+                            } else {
+                                const { password, ...userDataWithoutPassword } = user.dataValues;
+                                console.log(userDataWithoutPassword);
+                                res.status(200).send(userDataWithoutPassword);
+                                log.info('User fetched', userDataWithoutPassword);
+                            }
+                        }
+                        
                     }
                 })
                 .catch(error => {
@@ -161,6 +191,11 @@ exports.updateUser = (req, res) => {
                     res.status(401).send('User not found');
                     log.error('User not found');
                 } else {
+                    if (!user.verified && process.env.INFRA === 'prod')
+                    {
+                        res.status(400).send("User is not verified");
+                        log.warn('User is not verified');
+                    }
                     const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
                     if (!isPasswordValid) {
                         res.status(401).send('Invalid password');
@@ -204,7 +239,34 @@ exports.updateUser = (req, res) => {
     }
 };
 
+exports.verifyToken = async (req, res) => {
+    const { token } = req.params;
+    try {
+        const user = await User.findOne({ where: { token } });
+        if (!user) {
+            return res.status(404).send("Token not found");
+        }
+    const now = new Date();
+    createdTime = user.account_created;
+    const timestampDate = new Date(createdTime);
+    const difference = now - timestampDate;
+    const differenceInMinutes = difference / 1000 / 60;
+    if (differenceInMinutes > 2) {
+        await user.update({ verified: false });
+        console.log('More than 2 minutes have passed.');
+        log.info("The user is set to not verified as more than 2 minutes have passed");
+        return res.status(400).send("Token expired");
 
+    } else {
+        await user.update({ verified: true });
+        log.info("The user is set to verified");
+        return res.status(200).send("Token verified successfully");
+    }
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        return res.status(500).send("Internal server error");
+    }
+};
 
 
 // exports.findOne = (req,res) =>{
