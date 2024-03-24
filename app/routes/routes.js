@@ -60,6 +60,7 @@ router.head('/v1/user/self',(req,res) =>{
       .all('/v1/user/self',(req,res) =>{
             res.status(405).send();
 });
+router.get('/verify/:token', checkPayload, userController.verifyToken);
 
 router.all('*', (req,res) => {
     res.status(404).send();
