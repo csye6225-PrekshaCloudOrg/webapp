@@ -2,6 +2,7 @@ name: Packer Workflow
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - main
 
