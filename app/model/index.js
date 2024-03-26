@@ -20,5 +20,6 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.User = require("./user.js")(sequelize, Sequelize);
+db.VerificationToken = require("./verificationToken.js")(sequelize, Sequelize); // Include VerificationToken model
 
 module.exports = db;

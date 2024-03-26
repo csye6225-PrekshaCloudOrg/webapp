@@ -241,13 +241,18 @@ exports.updateUser = (req, res) => {
 
 exports.verifyToken = async (req, res) => {
     const { token } = req.params;
+    //const verification_token = token;
     try {
         const user = await User.findOne({ where: { token } });
         if (!user) {
+            return res.status(404).send("User with token not found");
+        }
+        const verificationToken = await db.VerificationToken.findOne({ where: { token } });
+        if (!verificationToken) {
             return res.status(404).send("Token not found");
         }
     const now = new Date();
-    createdTime = user.account_created;
+    createdTime = verificationToken.sent_date;
     const timestampDate = new Date(createdTime);
     const difference = now - timestampDate;
     const differenceInMinutes = difference / 1000 / 60;
