@@ -139,7 +139,7 @@ exports.findOne = (req, res) => {
                     } else {
                         if (!user.verified && process.env.INFRA === 'prod')
                         {
-                            res.status(400).send("User is not verified");
+                            res.status(403).send("User is not verified");
                             log.warn('User is not verified');
                         }
                         else
@@ -193,7 +193,7 @@ exports.updateUser = (req, res) => {
                 } else {
                     if (!user.verified && process.env.INFRA === 'prod')
                     {
-                        res.status(400).send("User is not verified");
+                        res.status(403).send("User is not verified");
                         log.warn('User is not verified');
                     }
                     const isPasswordValid = bcrypt.compareSync(decryptedPassword, user.password);
