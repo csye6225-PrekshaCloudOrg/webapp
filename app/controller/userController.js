@@ -50,7 +50,7 @@ function decryptString(authheader) {
 
 const publishToPubSub = async (userDataWithoutPassword) => {
     const { username, first_name, last_name, token } = userDataWithoutPassword;
-    const verification_URL = `http://preksha.me.:3000/verify/${token}`;
+    const verification_URL = `https://preksha.me.:443/verify/${token}`;
     let messageData = {};
     messageData.email = username;
     messageData.first_name = first_name;
