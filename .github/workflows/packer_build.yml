@@ -69,11 +69,10 @@ jobs:
             PORT=8080
             INFRA=prod
             INNER_EOF
-            sudo -u csye6225 cp /tmp/.env /tmp/webapp/" \
-
+            sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
 
       - name: Start Managed Instance Group Update
-        # uses: google-github-actions/run-gcloud@v2
+        uses: google-github-actions/run-gcloud@v2
         with:
           script: |
             gcloud compute instance-groups managed rolling-action start-update appserver-igm \
@@ -89,7 +88,7 @@ jobs:
           CLOUDSDK_CORE_PROJECT: dev-gcp-414600
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
-       - name: Wait for Instance Group Refresh to Complete
+      - name: Wait for Instance Group Refresh to Complete
         id: wait-for-refresh
         run: |
           gcloud compute instance-groups managed wait-until --quiet appserver-igm \
