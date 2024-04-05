@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -52,7 +52,9 @@ jobs:
           echo "::set-output name=image_id::$IMAGE_ID"
 
       - name: Create Instance Template
-        run: |
+        uses: google-github-actions/run-gcloud@v2
+        with:
+          script: |
           gcloud compute instance-templates create instance-template-20240405-202502 \
           --machine-type=e2-medium \
           --network-interface=network=dev-vpc1,subnet=backend-subnet \
