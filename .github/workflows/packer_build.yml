@@ -57,7 +57,6 @@ jobs:
             --machine-type=e2-medium \
             --network-interface=network=dev-vpc1,subnet=backend-subnet \
             --instance-template-region=us-central1 \
-            --instance-template-region=projects/dev-gcp-414600/regions/us-central1 \
             --service-account=${{ secrets.service_account }} \
             --scopes=cloud-platform \
             --create-disk=auto-delete=yes,boot=yes,image=$IMAGE_ID,size=100,type=pd-balanced \
