@@ -52,10 +52,8 @@ jobs:
           echo "::set-output name=image_id::$IMAGE_ID"
 
       - name: Create Instance Template
-        uses: google-github-actions/run-gcloud@v2
-        with:
-          script: |
-            gcloud compute instance-templates create instance-template-20240405-202502 \
+        run: |
+          gcloud compute instance-templates create instance-template-20240405-202502 \
             --machine-type=e2-medium \
             --network-interface=network=dev-vpc1,subnet=backend-subnet \
             --instance-template-region=projects/dev-gcp-414600/regions/us-central1 \
@@ -74,12 +72,10 @@ jobs:
               sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
 
       - name: Start Managed Instance Group Update
-        uses: google-github-actions/run-gcloud@v2
-        with:
-          script: |
-            gcloud compute instance-groups managed rolling-action start-update appserver-igm \
-              --version=template=instance-template-20240405-202502 \
-              --type=proactive
+        run: |
+          gcloud compute instance-groups managed rolling-action start-update appserver-igm \
+            --version=template=instance-template-20240405-202502 \
+            --type=proactive
 
       - name: Recreate Instances in Managed Instance Group
         id: recreate-instances
