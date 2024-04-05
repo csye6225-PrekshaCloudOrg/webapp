@@ -2,7 +2,6 @@ name: Packer Workflow
 
 on:
   pull_request:
-    types: [closed]
     branches:
       - main
 
@@ -45,6 +44,56 @@ jobs:
 
       - name: Build the Packer image
         run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
+
+      - name: Get Image ID
+        id: image_id
+        run: |
+          IMAGE_ID=$(gcloud compute images list --format="value(ID)" --filter="name=centos-8-packer" | head -n 1)
+          echo "::set-output name=image_id::$IMAGE_ID"
+
+      - name: Create Instance Template
+        run: |
+          gcloud compute instance-templates create instance-template-20240405-202502 \
+          --machine-type=e2-medium \
+          --network-interface=network=dev-vpc1,subnet=backend-subnet \
+          --instance-template-region=projects/dev-gcp-414600/regions/us-central1 \
+          --service-account=${{ secrets.service_account }} \
+          --scopes=cloud-platform \
+          --create-disk=auto-delete=yes,boot=yes,image=$IMAGE_ID,size=100,type=pd-balanced \
+          --metadata=startup-script="#!/bin/bash
+            cat <<INNER_EOF > /tmp/.env
+            DB_USERNAME=${{ secrets.db_username }}
+            DB_PASSWORD=${{ secrets.db_password}}
+            DB_HOST=${{ secrets.db_host}}
+            DB_NAME=${{ secrets.db_name}}
+            PORT=8080
+            INFRA=prod
+            INNER_EOF
+            sudo -u csye6225 cp /tmp/.env /tmp/webapp/" \
+
+
+      - name: Start Managed Instance Group Update
+        # uses: google-github-actions/run-gcloud@v2
+        with:
+          script: |
+            gcloud compute instance-groups managed rolling-action start-update appserver-igm \
+              --version=template=instance-template-20240405-202502 \
+              --type=proactive
+
+      - name: Recreate Instances in Managed Instance Group
+        id: recreate-instances
+        run: |
+          gcloud compute instance-groups managed recreate-instances appserver-igm \
+            --region=us-central1
+        env:
+          CLOUDSDK_CORE_PROJECT: dev-gcp-414600
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+
+       - name: Wait for Instance Group Refresh to Complete
+        id: wait-for-refresh
+        run: |
+          gcloud compute instance-groups managed wait-until --quiet appserver-igm \
+            --region=us-central1 --stable-status=STABLE_STATUS
 
       - name: Start PostgreSQL Service
         if: ${{ !contains(steps.status.outputs.service_status, 'running') }}
