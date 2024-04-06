@@ -72,12 +72,23 @@ jobs:
               INNER_EOF
               sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
 
-      - name: Start Managed Instance Group Update
+      - name: Get instance names in Managed Instance Group
+        id: get-instances
         run: |
-          gcloud compute instance-groups managed rolling-action start-update appserver-igm \
-            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404052 \
+          # Run a gcloud command to get the instance names in the managed instance group
+          INSTANCES=$(gcloud compute instance-groups managed list-instances appserver-igm --region=us-central1 --format="value(NAME)")
+          echo "::set-output name=instances::$INSTANCES"
+
+      - name: Recreate Instances in Managed Instance Group
+        id: recreate-instances
+        run: |
+          INSTANCES="${{ steps.get-instances.outputs.instances }}"
+          gcloud compute instance-groups managed recreate-instances appserver-igm \
             --region=us-central1 \
-            --type=proactive
+            --instances="$INSTANCES"
+        env:
+          CLOUDSDK_CORE_PROJECT: dev-gcp-414600
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
       - name: Wait for Instance Group Refresh to Complete
         id: wait-for-refresh
