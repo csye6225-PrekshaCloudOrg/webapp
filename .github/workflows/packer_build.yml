@@ -101,7 +101,7 @@ jobs:
         id: wait-for-refresh
         run: |
           gcloud compute instance-groups managed wait-until --quiet appserver-igm \
-            --region=us-central1 --stable-status=STABLE_STATUS
+            --region=us-central1 --stable
 
       - name: Start PostgreSQL Service
         if: ${{ !contains(steps.status.outputs.service_status, 'running') }}
