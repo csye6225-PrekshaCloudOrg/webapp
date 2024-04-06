@@ -49,7 +49,7 @@ jobs:
         id: image_name
         run: |
           IMAGE_NAME=$(gcloud compute images list --format="value(name)" --filter="name=centos-8-packer" --sort-by=~creationTimestamp --limit=1)
-          echo "::set-output name=image_name::$IMAGE_NAME"
+          echo "::set-output name=image_name::${IMAGE_NAME}"
 
       - name: Create Instance Template
         run: |
@@ -59,7 +59,7 @@ jobs:
             --instance-template-region=us-central1 \
             --service-account=${{ secrets.service_account }} \
             --scopes=cloud-platform \
-            --create-disk=auto-delete=yes,boot=yes,image=$IMAGE_NAME,size=100,type=pd-balanced \
+            --create-disk=auto-delete=yes,boot=yes,image=${IMAGE_NAME},size=100,type=pd-balanced \
             --metadata=startup-script="#!/bin/bash
               cat <<INNER_EOF > /tmp/.env
               DB_USERNAME=${{ secrets.db_username }}
