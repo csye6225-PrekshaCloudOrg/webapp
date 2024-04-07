@@ -56,7 +56,7 @@ jobs:
 
       - name: Create Instance Template
         run: |
-          gcloud compute instance-templates create instance-template-202404058 \
+          gcloud compute instance-templates create instance-template-202404059 \
             --machine-type=e2-medium \
             --network-interface=network=dev-vpc1,subnet=projects/dev-gcp-414600/regions/us-central1/subnetworks/backend-subnet \
             --instance-template-region=us-central1 \
@@ -66,7 +66,7 @@ jobs:
             --metadata=startup-script="echo 'DB_USERNAME=${{ secrets.db_username }}' > /tmp/.env && echo 'DB_PASSWORD=${{ secrets.db_password }}' >> /tmp/.env && echo 'DB_HOST=${{ secrets.db_host }}' >> /tmp/.env && echo 'DB_NAME=${{ secrets.db_name }}' >> /tmp/.env && echo 'PORT=8080' >> /tmp/.env && echo 'INFRA=prod' >> /tmp/.env && sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
 
       - name: Start Managed Instance Group Update
-        run:  gcloud compute instance-groups managed set-instance-template appserver-igm --template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404058 --region=us-central1
+        run:  gcloud compute instance-groups managed set-instance-template appserver-igm --template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404059 --region=us-central1
 
       - name: Start Managed Instance Group refresh of VM instances
         id: recreate-instances
