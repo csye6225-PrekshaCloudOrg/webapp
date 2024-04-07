@@ -71,7 +71,8 @@ jobs:
       - name: Start Managed Instance Group refresh of VM instances
         id: recreate-instances
         run: |
-              gcloud compute instance-groups managed recreate-instances appserver-igm --region=us-central1
+              instances=$(gcloud compute instance-groups managed list-instances appserver-igm --region=us-central1 --format=json | jq -r '.[].instance' | tr '\n' ' ')
+              gcloud compute instance-groups managed recreate-instances appserver-igm --region=us-central1 --instances=$instances
 
       - name: Wait for Instance Group Refresh to Complete
         id: wait-for-refresh
