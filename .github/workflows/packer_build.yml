@@ -54,7 +54,7 @@ jobs:
 
       - name: Create Instance Template
         run: |
-          gcloud compute instance-templates create instance-template-202404052 \
+          gcloud compute instance-templates create instance-template-202404054 \
             --machine-type=e2-medium \
             --network-interface=network=dev-vpc1,subnet=projects/dev-gcp-414600/regions/us-central1/subnetworks/backend-subnet \
             --instance-template-region=us-central1 \
@@ -71,6 +71,9 @@ jobs:
               INFRA=prod
               INNER_EOF
               sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
+
+      - name: Start Managed Instance Group Update
+        run: gcloud compute instance-groups managed set-instance-template appserver-igm --template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404054 --region=us-central1
 
       - name: Get instance names in Managed Instance Group
         id: get-instances
