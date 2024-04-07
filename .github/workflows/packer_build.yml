@@ -62,17 +62,18 @@ jobs:
             --scopes=cloud-platform \
             --create-disk=auto-delete=yes,boot=yes,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced \
             --metadata=startup-script="$(cat <<EOF
-cat <<INNER_EOF > /tmp/.env
-DB_USERNAME=${{ secrets.db_username }}
-DB_PASSWORD=${{ secrets.db_password }}
-DB_HOST=${{ secrets.db_host }}
-DB_NAME=${{ secrets.db_name }}
-PORT=8080
-INFRA=prod
-INNER_EOF
-sudo -u csye6225 cp /tmp/.env /tmp/webapp/
-EOF
-)"
+            #!/bin/bash
+            cat <<INNER_EOF > /tmp/.env
+            DB_USERNAME=${{ secrets.db_username }}
+            DB_PASSWORD=${{ secrets.db_password }}
+            DB_HOST=${{ secrets.db_host }}
+            DB_NAME=${{ secrets.db_name }}
+            PORT=8080
+            INFRA=prod
+            INNER_EOF
+            sudo -u csye6225 cp /tmp/.env /tmp/webapp/
+            EOF
+            )"
 
       - name: Start Managed Instance Group Update
         run:  gcloud compute instance-groups managed set-instance-template appserver-igm --template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404054 --region=us-central1
