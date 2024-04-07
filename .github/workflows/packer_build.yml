@@ -62,7 +62,6 @@ jobs:
             --scopes=cloud-platform \
             --create-disk=auto-delete=yes,boot=yes,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced \
             --metadata=startup-script="$(cat <<EOF
-#!/bin/bash
 cat <<INNER_EOF > /tmp/.env
 DB_USERNAME=${{ secrets.db_username }}
 DB_PASSWORD=${{ secrets.db_password }}
