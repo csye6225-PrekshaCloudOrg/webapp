@@ -67,7 +67,7 @@ jobs:
       - name: Start Managed Instance Group Update
         run: |
           gcloud compute instance-groups managed rolling-action start-update ${{ secrets.MIG_NAME }} \
-            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/${{ env.template_name }} \
+            --version=template=projects/dev-gcp-414600/regions/${{ secrets.instance_template_region }}/instanceTemplates/${{ env.template_name }} \
             --region=${{ secrets.instance_template_region }} \
             --type=proactive
 
