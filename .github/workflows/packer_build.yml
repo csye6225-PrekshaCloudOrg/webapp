@@ -51,30 +51,29 @@ jobs:
           IMAGE_NAME=$(gcloud compute images list --format="value(name)" --filter="name=centos-8-packer" --sort-by=~creationTimestamp --limit=1)
           echo "image_name=${IMAGE_NAME}"
           echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
-          echo ${{ env.MACHINE_TYPE }}
 
       - name: Create Instance Template
         run: |
           gcloud compute instance-templates create instance-template-202404054 \
-            --machine-type=${{ env.MACHINE_TYPE }} \
-            --network-interface=network=dev-vpc1,subnet=projects/dev-gcp-414600/regions/us-central1/subnetworks/backend-subnet \
-            --instance-template-region=us-central1 \
+            --machine-type=${{ secrets.MACHINE_TYPE_TEMPLATE }} \
+            --network-interface=${{ secrets.network_interface_template }} \
+            --instance-template-region=${{ secrets.instance_template_region }} \
             --service-account=${{ secrets.service_account }} \
             --scopes=cloud-platform \
-            --create-disk=auto-delete=yes,boot=yes,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced,kms-key=projects/dev-gcp-414600/locations/us-central1/keyRings/my-key-ring-v4/cryptoKeys/vm-crypt-key \
+            --create-disk=auto-delete=yes,boot=yes,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced,kms-key=${{ secrets.kms_key }} \
             --metadata=startup-script="echo 'DB_USERNAME=${{ secrets.db_username }}' > /tmp/.env && echo 'DB_PASSWORD=${{ secrets.db_password }}' >> /tmp/.env && echo 'DB_HOST=${{ secrets.db_host }}' >> /tmp/.env && echo 'DB_NAME=${{ secrets.db_name }}' >> /tmp/.env && echo 'PORT=8080' >> /tmp/.env && echo 'INFRA=prod' >> /tmp/.env && sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
 
       - name: Start Managed Instance Group Update
         run: |
-          gcloud compute instance-groups managed rolling-action start-update appserver-igm \
+          gcloud compute instance-groups managed rolling-action start-update ${{ secrets.MIG_NAME }} \
             --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404054 \
-            --region=us-central1 \
+            --region=${{ secrets.instance_template_region }} \
             --type=proactive
 
       - name: Wait for Instance Group Refresh to Complete
         id: wait-for-refresh
         run: |
-          gcloud compute instance-groups managed wait-until appserver-igm --stable --region=us-central1 --quiet
+          gcloud compute instance-groups managed wait-until ${{ secrets.MIG_NAME }} --stable --region=${{ secrets.instance_template_region }} --quiet
 
       - name: Start PostgreSQL Service
         if: ${{ !contains(steps.status.outputs.service_status, 'running') }}
