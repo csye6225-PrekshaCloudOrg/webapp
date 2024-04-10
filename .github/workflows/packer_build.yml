@@ -51,10 +51,11 @@ jobs:
           IMAGE_NAME=$(gcloud compute images list --format="value(name)" --filter="name=centos-8-packer" --sort-by=~creationTimestamp --limit=1)
           echo "image_name=${IMAGE_NAME}"
           echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+          echo "template_name=instance-template-$(date +'%Y%m%d')" >> $GITHUB_ENV
 
       - name: Create Instance Template
         run: |
-          gcloud compute instance-templates create instance-template-202404052 \
+          gcloud compute instance-templates create ${{ env.template_name }} \
             --machine-type=${{ secrets.MACHINE_TYPE_TEMPLATE }} \
             --network-interface=${{ secrets.network_interface_template }} \
             --instance-template-region=${{ secrets.instance_template_region }} \
@@ -66,7 +67,7 @@ jobs:
       - name: Start Managed Instance Group Update
         run: |
           gcloud compute instance-groups managed rolling-action start-update ${{ secrets.MIG_NAME }} \
-            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404052 \
+            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/${{ env.template_name }} \
             --region=${{ secrets.instance_template_region }} \
             --type=proactive
 
