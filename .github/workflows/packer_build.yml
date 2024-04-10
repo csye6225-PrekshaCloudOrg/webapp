@@ -54,7 +54,7 @@ jobs:
 
       - name: Create Instance Template
         run: |
-          gcloud compute instance-templates create instance-template-202404054 \
+          gcloud compute instance-templates create instance-template-202404052 \
             --machine-type=${{ secrets.MACHINE_TYPE_TEMPLATE }} \
             --network-interface=${{ secrets.network_interface_template }} \
             --instance-template-region=${{ secrets.instance_template_region }} \
@@ -66,7 +66,7 @@ jobs:
       - name: Start Managed Instance Group Update
         run: |
           gcloud compute instance-groups managed rolling-action start-update ${{ secrets.MIG_NAME }} \
-            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404054 \
+            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404052 \
             --region=${{ secrets.instance_template_region }} \
             --type=proactive
 
