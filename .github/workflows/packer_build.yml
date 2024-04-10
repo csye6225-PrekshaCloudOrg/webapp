@@ -54,7 +54,7 @@ jobs:
 
       - name: Create Instance Template
         run: |
-          gcloud compute instance-templates create instance-template-202404056 \
+          gcloud compute instance-templates create instance-template-202404055 \
             --machine-type=e2-medium \
             --network-interface=network=dev-vpc1,subnet=projects/dev-gcp-414600/regions/us-central1/subnetworks/backend-subnet \
             --instance-template-region=us-central1 \
@@ -66,7 +66,7 @@ jobs:
       - name: Start Managed Instance Group Update
         run: |
           gcloud compute instance-groups managed rolling-action start-update appserver-igm \
-            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404056 \
+            --version=template=projects/dev-gcp-414600/regions/us-central1/instanceTemplates/instance-template-202404055 \
             --region=us-central1 \
             --type=proactive
 
