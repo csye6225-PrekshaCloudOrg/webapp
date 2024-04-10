@@ -60,8 +60,7 @@ jobs:
             --instance-template-region=us-central1 \
             --service-account=${{ secrets.service_account }} \
             --scopes=cloud-platform \
-            --create-disk=auto-delete=yes,boot=yes,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced \
-            --disk-encryption-key=projects/dev-gcp-414600/locations/us-central1/keyRings/my-key-ring-v4/cryptoKeys/vm-crypt-key \
+            --create-disk=auto-delete=yes,boot=yes,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced,disk-encryption=projects/dev-gcp-414600/locations/us-central1/keyRings/my-key-ring-v4/cryptoKeys/vm-crypt-key \
             --metadata=startup-script="echo 'DB_USERNAME=${{ secrets.db_username }}' > /tmp/.env && echo 'DB_PASSWORD=${{ secrets.db_password }}' >> /tmp/.env && echo 'DB_HOST=${{ secrets.db_host }}' >> /tmp/.env && echo 'DB_NAME=${{ secrets.db_name }}' >> /tmp/.env && echo 'PORT=8080' >> /tmp/.env && echo 'INFRA=prod' >> /tmp/.env && sudo -u csye6225 cp /tmp/.env /tmp/webapp/"
 
       - name: Start Managed Instance Group Update
