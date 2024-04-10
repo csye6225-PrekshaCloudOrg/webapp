@@ -1,13 +1,13 @@
 name: Packer Workflow
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
-      - assignment09
-
+      - main
 jobs:
   build:
-    # if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -42,8 +42,8 @@ jobs:
       - name: Initialize Packer
         run: cd packer_files && packer init .
 
-      # - name: Build the Packer image
-      #   run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
+      - name: Build the Packer image
+        run: cd packer_files && packer build -var "project_id=${{ secrets.PROJECT_ID }}" -var "zone=${{ secrets.ZONE }}" -var "source_image_family=${{ secrets.SOURCE_IMAGE_FAMILY }}" -var "machine_type=${{ secrets.MACHINE_TYPE }}" image.pkr.hcl
 
       - name: Get Latest Image Name
         id: image_name
@@ -51,7 +51,7 @@ jobs:
           IMAGE_NAME=$(gcloud compute images list --format="value(name)" --filter="name=centos-8-packer" --sort-by=~creationTimestamp --limit=1)
           echo "image_name=${IMAGE_NAME}"
           echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
-          echo "template_name=instance-template-$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "template_name=instance-template-${current_date_time}" >> $GITHUB_ENV
 
       - name: Create Instance Template
         run: |
