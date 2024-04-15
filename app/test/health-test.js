@@ -25,7 +25,7 @@ describe('GET /healthz', () => {
 });
 
 //Test case for POST - register user
-describe('POST /v1/user', () => {
+describe('POST /v2/user', () => {
   it('should create a new user', (done) => {
     const userData = {
       "first_name": "Jane",
@@ -35,7 +35,7 @@ describe('POST /v1/user', () => {
     };
 
     request(app)
-      .post('/v1/user')
+      .post('/v2/user')
       .send(userData)
       .expect(201)
       .end((err, res) => {
@@ -45,12 +45,12 @@ describe('POST /v1/user', () => {
   });
 });
 
-describe('GET /v1/user/self', () => {
+describe('GET /v2/user/self', () => {
   it('should retrieve user information with basic authentication', (done) => {
     const authHeader = 'Basic dXNlcjEyMzQ1QGdtYWlsLmNvbTpQYXNzd29yZDEyMw==';
 
     request(app)
-      .get('/v1/user/self')
+      .get('/v2/user/self')
       .set('Authorization', authHeader)
       .expect(200)
       .end((err, res) => {
@@ -62,7 +62,7 @@ describe('GET /v1/user/self', () => {
   });
 });
 
-describe('PUT /v1/user/self', () => {
+describe('PUT /v2/user/self', () => {
   it('should update user information with basic authentication', (done) => {
     const authHeader = 'Basic dXNlcjEyMzQ1QGdtYWlsLmNvbTpQYXNzd29yZDEyMw==';
     const userData = {
@@ -72,7 +72,7 @@ describe('PUT /v1/user/self', () => {
     };
 
     request(app)
-      .put('/v1/user/self')
+      .put('/v2/user/self')
       .set('Authorization', authHeader)
       .set('Content-Type', 'application/json')
       .send(userData)
@@ -84,12 +84,12 @@ describe('PUT /v1/user/self', () => {
   });
 });
 
-describe('GET /v1/user/self', () => {
+describe('GET /v2/user/self', () => {
   it('should retrieve user information with basic authentication', (done) => {
     const authHeader = 'Basic dXNlcjEyMzQ1QGdtYWlsLmNvbTpQYXNzd29yZDEyMzQ1Ng==';
 
     request(app)
-      .get('/v1/user/self')
+      .get('/v2/user/self')
       .set('Authorization', authHeader)
       .expect(200)
       .end((err, res) => {
