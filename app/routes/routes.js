@@ -48,16 +48,16 @@ router.all('/healthz', (req, res) => {
     res.status(405).send();
 });
 
-router.post('/v2/user', create_user_validator, userController.create)
-      .all('/v2/user', (req, res) => {
+router.post('/v10/user', create_user_validator, userController.create)
+      .all('/v10/user', (req, res) => {
         res.status(405).send();
     });
 
-router.head('/v2/user/self',(req,res) =>{
+router.head('/v10/user/self',(req,res) =>{
         res.status(405).send();})
-      .get('/v2/user/self',checkPayload ,userController.findOne)
-      .put('/v2/user/self',update_user_validator,  userController.updateUser)
-      .all('/v2/user/self',(req,res) =>{
+      .get('/v10/user/self',checkPayload ,userController.findOne)
+      .put('/v10/user/self',update_user_validator,  userController.updateUser)
+      .all('/v10/user/self',(req,res) =>{
             res.status(405).send();
 });
 router.get('/verify/:token', checkPayload, userController.verifyToken);
